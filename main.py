@@ -5,7 +5,7 @@ from stagehand import Stagehand
 
 load_dotenv()
 MODEL_API_KEY = os.getenv("MODEL_API_KEY")
-BROWERBASE_API_KEY = os.getenv("BROWSERBASE_API_KEY")
+BROWSERBASE_API_KEY = os.getenv("BROWSERBASE_API_KEY")
 BROWSERBASE_PROJECT_ID = os.getenv("BROWSERBASE_PROJECT_ID")
 
 def get_website_from_user():
@@ -18,6 +18,8 @@ async def main():
         stagehand = Stagehand(
             env="BROWSERBASE",
             model_api_key=MODEL_API_KEY,
+            browserbase_api_key=BROWSERBASE_API_KEY,
+            browserbase_project_id=BROWSERBASE_PROJECT_ID
         )
         await stagehand.init()
         page = stagehand.page
