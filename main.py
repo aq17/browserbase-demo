@@ -29,7 +29,11 @@ async def main():
         await page.goto(website_url)
         
         # Use observe() to find a "menu" link on the website
-        menu_link = await page.observe("find the menu link on the page")
+        menu_link = await page.observe(
+            "Locate the restaurant's menu link on the page. "
+            "Look for elements containing 'Menu', 'Food', or similar. "
+            "Return ONLY the link URL (href), nothing else."
+        )
         print(menu_link)
         
         # # Extract structured data
