@@ -59,6 +59,7 @@ async def main():
         menu_link = await find_menu_link(page)
         print("Menu link found:", menu_link)
         if menu_link:
+            # figure out what this returns and how to extract the menu_link data, in what schema, etc.
             await page.act(menu_link[0])
 
     finally:
