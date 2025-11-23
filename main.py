@@ -16,12 +16,16 @@ async def find_menu_link(page, max_retries=3):
     Attempt to locate the restaurant's menu link using Stagehand observe.
     Retries up to `max_retries` times if it fails.
     """
-    instruction = """
-    Scan all anchor <a> tags on the page.
-    Return the href of the first link whose visible text contains
-    one of the keywords (case-insensitive): ['menu', 'food', 'dinner', 'lunch', 'order'].
-    If no link is found, return 'NO_MENU_LINK_FOUND'.
-    """
+    instruction = "Task: From the HTML of a restaurant webpage, return the best menu link. " \
+    "Rules: (1) Inspect all <a> tags and extract visible text, aria-label, title, alt (from images), " \
+    "and href. (2) Lowercase all text and URLs. (3) A link is a candidate if any apply: " \
+    "text/label contains 'menu','menus','food','dining','dinner','lunch','brunch','order'," \
+    "'takeout'; URL contains those keywords or ends in .pdf/.jpg/.png; URL contains a known menu/" \
+    "ordering domain: toasttab, clover, opentable.com/menu, ubereats, doordash, grubhub. (4) " \
+    "Ranking priority: (1) URL with 'menu' or 'menus'; (2) PDF files; (3) other food/dining URLs; " \
+    "(4) ordering-platform links. (5) Output exactly one thing: the best URL or " \
+    "'NO_MENU_LINK_FOUND'. No explanations."
+
 
     for attempt in range(1, max_retries + 1):
         try:
@@ -54,6 +58,8 @@ async def main():
         # Locate menu link with retries
         menu_link = await find_menu_link(page)
         print("Menu link found:", menu_link)
+        if menu_link:
+            await page.act(menu_link[0])
 
     finally:
         await stagehand.close()
