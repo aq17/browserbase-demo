@@ -97,6 +97,9 @@ async def main():
         logger.info(f"Navigating to {website_url} ...")
         await page.goto(website_url)
 
+        # TODO: extract restaurant name, phone number, address, hours, etc. 
+        # Define Pydantic schema for structured data extraction 
+
         # Locate menu link with retries
         menu_link = await find_menu_link(page)
         if menu_link == NO_MENU_LINK_FOUND:
@@ -106,6 +109,7 @@ async def main():
         # TODO: figure out what this returns and how to extract the menu_link data, in what schema, etc.
         logger.info(f"Menu link found: {menu_link}")
         await page.act(menu_link[0])
+        # TODO: go to each subsection link (if applicable, i.e. breakfast/lunch/dinner) and extract each section
         await page.extract("Extract all menu sections, item names, descriptions, "
                 "and prices from the provided website text. "
                 "If categories are unclear, infer reasonable section names. "
