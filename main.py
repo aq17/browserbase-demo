@@ -130,11 +130,16 @@ async def main():
         sections = await page.observe(
             "Find all subsections on the current menu page, i.e. 'Lunch', 'Dinner', 'Happy Hour', etc."
             "Return them as a list of links. If none found, return the current page link only in a list."
-            "Do not return duplicates if a link appears multiple times."
+            "Do not return duplicates if a link appears multiple times." 
         )
 
         for section in sections:
             logger.info(f"Navigating to menu section: {section.description} ...")
+            # TODO: more elegant iframe handling/ logic, ignore any ObserveResult containing 'iframe' for now
+            if "iframe" in section.description.lower():
+                logger.info("Skipping iframe link ...")
+                continue
+
             await page.act(section)
 
             await page.extract(
