@@ -11,7 +11,7 @@ NO_MENU_LINK_FOUND = "NO_MENU_LINK_FOUND"
 
 # Load env variables from .env file
 load_dotenv()
-MODEL_API_KEY = os.getenv("MODEL_API_KEY")          
+MODEL_API_KEY = os.getenv("MODEL_API_KEY")
 BROWSERBASE_API_KEY = os.getenv("BROWSERBASE_API_KEY")
 BROWSERBASE_PROJECT_ID = os.getenv("BROWSERBASE_PROJECT_ID")
 
@@ -23,8 +23,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 def get_website_from_user():
     return input("Hello! Please enter a restaurant website URL: ")
+
 
 async def find_menu_link(page, max_retries=3):
     """
@@ -52,13 +54,13 @@ async def find_menu_link(page, max_retries=3):
             await asyncio.sleep(1)
     return NO_MENU_LINK_FOUND
 
+
 # Normalize URL so that absolute URL path is used (https://docs.stagehand.dev/v3/references/page)
 def normalize_url(url: str) -> str:
     url = url.strip()
     if not url.startswith(("http://", "https://")):
         url = "https://" + url
     return url
-
 
 
 class MenuItem(BaseModel):
@@ -91,14 +93,14 @@ async def main():
     try:
         await stagehand.init()
         page = stagehand.page
-        
+
         # Get website URL from user
         website_url = normalize_url(get_website_from_user())
         logger.info(f"Navigating to {website_url} ...")
         await page.goto(website_url)
 
-        # TODO: extract restaurant name, phone number, address, hours, etc. 
-        # Define Pydantic schema for structured data extraction 
+        # TODO: extract restaurant name, phone number, address, hours, etc.
+        # Define Pydantic schema for structured data extraction
 
         # Locate menu link with retries
         menu_link = await find_menu_link(page)
@@ -110,15 +112,17 @@ async def main():
         logger.info(f"Menu link found: {menu_link}")
         await page.act(menu_link[0])
         # TODO: go to each subsection link (if applicable, i.e. breakfast/lunch/dinner) and extract each section
-        await page.extract("Extract all menu sections, item names, descriptions, "
-                "and prices from the provided website text. "
-                "If categories are unclear, infer reasonable section names. "
-                "Preserve price formatting exactly as written.",
-                schema=Menu
+        await page.extract(
+            "Extract all menu sections, item names, descriptions, "
+            "and prices from the provided website text. "
+            "If categories are unclear, infer reasonable section names. "
+            "Preserve price formatting exactly as written.",
+            schema=Menu,
         )
         # TODO: write output to file (mimicing a DB write)
     finally:
         await stagehand.close()
+
 
 if __name__ == "__main__":
     asyncio.run(main())
