@@ -87,7 +87,6 @@ async def main():
         api_key=BROWSERBASE_API_KEY,
         project_id=BROWSERBASE_PROJECT_ID,
         verbose=2,  # Maximum logging detail for development
-        logInferenceToFile=True,  # Writes files to ./inference_summary/ for LLM debugging
     )
 
     try:
