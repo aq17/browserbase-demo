@@ -4,6 +4,10 @@ import logging
 from dotenv import load_dotenv
 from stagehand import Stagehand
 
+# Define constsants
+NO_MENU_LINK_FOUND = "NO_MENU_LINK_FOUND"
+
+# Load env variables from .env file
 load_dotenv()
 MODEL_API_KEY = os.getenv("MODEL_API_KEY")          
 BROWSERBASE_API_KEY = os.getenv("BROWSERBASE_API_KEY")
@@ -44,7 +48,15 @@ async def find_menu_link(page, max_retries=3):
         except Exception as e:
             logger.warning(f"[Attempt {attempt}] Failed: {e}")
             await asyncio.sleep(1)
-    return "Failed to locate menu link after retries"
+    return NO_MENU_LINK_FOUND
+
+# Normalize URL so that absolute URL path is used (https://docs.stagehand.dev/v3/references/page)
+def normalize_url(url: str) -> str:
+    url = url.strip()
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
+    return url
+
 
 
 async def main():
@@ -63,17 +75,20 @@ async def main():
         page = stagehand.page
         
         # Get website URL from user
-        website_url = get_website_from_user()
+        website_url = normalize_url(get_website_from_user())
         logger.info(f"Navigating to {website_url} ...")
         await page.goto(website_url)
 
         # Locate menu link with retries
         menu_link = await find_menu_link(page)
-        logger.info("Menu link found:", menu_link)
-        if menu_link:
-            # TODO: figure out what this returns and how to extract the menu_link data, in what schema, etc.
-            await page.act(menu_link[0])
+        if menu_link == NO_MENU_LINK_FOUND:
+            logger.error("Could not find menu link after multiple attempts.")
+            return
 
+        # TODO: figure out what this returns and how to extract the menu_link data, in what schema, etc.
+        logger.info(f"Menu link found: {menu_link}")
+        await page.act(menu_link[0])
+        
     finally:
         await stagehand.close()
 
