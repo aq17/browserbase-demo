@@ -3,6 +3,8 @@ import asyncio
 import logging
 from dotenv import load_dotenv
 from stagehand import Stagehand
+from pydantic import BaseModel
+from typing import Optional, List
 
 # Define constsants
 NO_MENU_LINK_FOUND = "NO_MENU_LINK_FOUND"
@@ -59,6 +61,22 @@ def normalize_url(url: str) -> str:
 
 
 
+class MenuItem(BaseModel):
+    name: str
+    description: Optional[str] = None
+    price: Optional[str] = None
+
+
+class MenuCategory(BaseModel):
+    category_name: str
+    items: List[MenuItem]
+
+
+class Menu(BaseModel):
+    restaurant_name: Optional[str] = None
+    categories: List[MenuCategory]
+
+
 async def main():
     stagehand = Stagehand(
         env="BROWSERBASE",
@@ -88,7 +106,13 @@ async def main():
         # TODO: figure out what this returns and how to extract the menu_link data, in what schema, etc.
         logger.info(f"Menu link found: {menu_link}")
         await page.act(menu_link[0])
-        
+        await page.extract("Extract all menu sections, item names, descriptions, "
+                "and prices from the provided website text. "
+                "If categories are unclear, infer reasonable section names. "
+                "Preserve price formatting exactly as written.",
+                schema=Menu
+        )
+        # TODO: write output to file (mimicing a DB write)
     finally:
         await stagehand.close()
 
