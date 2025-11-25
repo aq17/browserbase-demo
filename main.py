@@ -3,10 +3,11 @@ import asyncio
 import logging
 from dotenv import load_dotenv
 from stagehand import Stagehand
-from pydantic import BaseModel
-from typing import Optional, List
+import model
+import json
+import os
 
-# Define constsants
+# Define constants
 NO_MENU_LINK_FOUND = "NO_MENU_LINK_FOUND"
 
 # Load env variables from .env file
@@ -63,22 +64,6 @@ def normalize_url(url: str) -> str:
     return url
 
 
-class MenuItem(BaseModel):
-    name: str
-    description: Optional[str] = None
-    price: Optional[str] = None
-
-
-class MenuCategory(BaseModel):
-    category_name: str
-    items: List[MenuItem]
-
-
-class Menu(BaseModel):
-    restaurant_name: Optional[str] = None
-    categories: List[MenuCategory]
-
-
 async def main():
     stagehand = Stagehand(
         env="BROWSERBASE",
@@ -110,15 +95,25 @@ async def main():
 
         # TODO: figure out what this returns and how to extract the menu_link data, in what schema, etc.
         logger.info(f"Menu link found: {menu_link}")
+        # Act() on observe() output, avoiding additional LLM call
         await page.act(menu_link[0])
-        # TODO: go to each subsection link (if applicable, i.e. breakfast/lunch/dinner) and extract each section
-        await page.extract(
-            "Extract all menu sections, item names, descriptions, "
-            "and prices from the provided website text. "
-            "If categories are unclear, infer reasonable section names. "
-            "Preserve price formatting exactly as written.",
-            schema=Menu,
-        )
+
+        # Create file to write output to
+        # filename = f""
+
+        # go to each subsection link (if applicable, i.e. breakfast/lunch/dinner) and extract each section
+        sections = await page.observe("Find all subsection links on the menu page, i.e. 'Lunch', 'Dinner', 'Happy Hour', etc." \
+        "and return the list of links. If none found, return the current page link only in a list.")
+        for section in sections:
+            logger.info(f"Navigating to menu section: {section.description} ...")
+            await page.act(section)
+            await page.extract(
+                "Extract all menu sections, item names, descriptions, "
+                "and prices from the provided website text. "
+                "If categories are unclear, infer reasonable section names. "
+                "Preserve price formatting exactly as written.",
+                schema=model.Menu,
+            )
         # TODO: write output to file (mimicing a DB write)
     finally:
         await stagehand.close()
