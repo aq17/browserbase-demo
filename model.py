@@ -35,7 +35,6 @@ class SocialLinks(BaseModel):
     facebook: Optional[str] = None
     twitter_x: Optional[str] = Field(None, alias="twitter")
     tiktok: Optional[str] = None
-    opentable: Optional[str] = None
     yelp: Optional[str] = None
     google_maps: Optional[str] = None
 
@@ -67,9 +66,8 @@ class MenuSection(BaseModel):
 class Menu(BaseModel):
     """
     The full restaurant menu.
-    For restaurants with multiple menu pages or subsections.
+    Compatible with restaurants with multiple menu pages or subsections.
     """
-    restaurant_name: Optional[str] = None
     sections: List[MenuSection]
 
 
@@ -81,16 +79,6 @@ class RestaurantInfo(BaseModel):
     address: Optional[Address] = None
     hours: Optional[HoursOfOperation] = None
 
-    menu: Optional[Menu] = None
+    # menu: Optional[Menu] = None
 
     social_links: Optional[SocialLinks] = None
-    description: Optional[str] = Field(
-        None, 
-        description="Short blurb or summary about the restaurant from the website"
-    )
-
-    additional_info: Optional[Dict[str, str]] = Field(
-        default_factory=dict,
-        description="Any extra extracted details that do not fit standard fields"
-    )
-
