@@ -1,0 +1,12 @@
+# List of restaurant websites to scrape
+# One URL per line, lines starting with # are ignored
+# Remove the # to enable a URL
+
+# Example format:
+# https://www.restaurant-name.com
+
+# Add your restaurant URLs below:
+
+# https://www.thetailorssonsf.com/
+https://www.perryssf.com/
+# https://www.pearl6101.com/
